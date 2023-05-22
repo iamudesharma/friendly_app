@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 
-void main() {
+import 'package:appwrite/appwrite.dart';
+
+Client client = Client();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  client
+      .setEndpoint('https://cloud.appwrite.io/v1')
+      .setProject('646ba3fd4cc07951b9c3')
+      .setSelfSigned(status: true); //
   runApp(const MyApp());
 }
 
