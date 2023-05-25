@@ -1,13 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_signin_button/button_list.dart';
-import 'package:flutter_signin_button/button_view.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:friendly_app/auth/repo/auth_repo.dart';
+import 'package:friendly_app/router/route_contants.dart';
+import 'package:go_router/go_router.dart';
 
-class SignInPage extends StatelessWidget {
+class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
 
   @override
+  ConsumerState<SignInPage> createState() => _SignInPageState();
+}
+
+class _SignInPageState extends ConsumerState<SignInPage> {
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+
+  late GlobalKey<FormState> _formKey;
+
+  @override
+  void initState() {
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+
+    _formKey = GlobalKey<FormState>();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final auth = ref.watch(authRepoProvider);
     return Scaffold(
         body: Stack(
       children: [
@@ -79,102 +108,113 @@ class SignInPage extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  children: [
-                    TextFieldTapRegion(
-                      child: TextFormField(
-                        enabled: true,
-                        textInputAction: TextInputAction.go,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          labelText: "Email",
-                          hintText: "Enter your email",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFieldTapRegion(
+                        child: TextFormField(
+                          enabled: true,
+                          textInputAction: TextInputAction.go,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            labelText: "Email",
+                            hintText: "Enter your email",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    TextFieldTapRegion(
-                      child: TextFormField(
-                        enabled: true,
-                        textInputAction: TextInputAction.go,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          labelText: "Password",
-                          hintText: "Enter your password",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      TextFieldTapRegion(
+                        child: TextFormField(
+                          obscureText: true,
+                          enabled: true,
+                          textInputAction: TextInputAction.go,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            labelText: "Password",
+                            hintText: "Enter your password",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          fixedSize:
-                              Size(MediaQuery.of(context).size.width, 35)),
-                      child: Text("Sign In"),
-                      onPressed: () {},
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      "Forgot your Password?",
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).primaryColor,
-                            letterSpacing: 1.3,
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            fixedSize:
+                                Size(MediaQuery.of(context).size.width, 35)),
+                        child: auth.isLoading
+                            ? CircularProgressIndicator.adaptive()
+                            : const Text("Sign In"),
+                        onPressed: () async {
+                          FocusScope.of(context).unfocus();
+
+                          // await ref.read(authRepoProvider.notifier).createUser(
+                          //     _emailController.text, _passwordController.text);
+                        },
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "Forgot your Password?",
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).primaryColor,
+                              letterSpacing: 1.3,
+                            ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "OR",
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Colors.grey,
+                              letterSpacing: 1.3,
+                            ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              fixedSize: Size(150, 40),
+                            ),
+                            icon: Image.network(
+                              "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
+                              height: 30,
+                              width: 30,
+                            ),
+                            label: Text("Google"),
+                            onPressed: () {},
                           ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      "OR",
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey,
-                            letterSpacing: 1.3,
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                                fixedSize: Size(150, 40)),
+                            icon: Image.network(
+                              "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Facebook_colored_svg_copy-1024.png",
+                              // "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
+                              height: 30,
+                              width: 30,
+                            ),
+                            label: Text("Facebook"),
+                            onPressed: () {},
                           ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            fixedSize: Size(150, 40),
-                          ),
-                          icon: Image.network(
-                            "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
-                            height: 30,
-                            width: 30,
-                          ),
-                          label: Text("Google"),
-                          onPressed: () {},
-                        ),
-                        OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                              fixedSize: Size(150, 40)),
-                          icon: Image.network(
-                            "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Facebook_colored_svg_copy-1024.png",
-                            // "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
-                            height: 30,
-                            width: 30,
-                          ),
-                          label: Text("Facebook"),
-                          onPressed: () {},
-                        ),
-                      ],
-                    )
-                  ],
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               )
             ]),
@@ -203,7 +243,9 @@ class SignInPage extends StatelessWidget {
                     //     backgroundColor:
                     //         const Color(0xff7B72FE).withOpacity(0.8)),
                     child: const Text("Get Started"),
-                    onPressed: () {},
+                    onPressed: () {
+                      context.go(AppRoute.signUp);
+                    },
                   ),
                 ],
               ),
