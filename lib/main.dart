@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:appwrite/appwrite.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:friendly_app/constants/app_constants.dart';
+import 'package:friendly_app/router/app_router.dart';
+
+import 'helpers/dependency.dart';
 
 Client client = Client();
 
@@ -8,19 +13,26 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   client
-      .setEndpoint('https://cloud.appwrite.io/v1')
-      .setProject('646ba3fd4cc07951b9c3')
+      .setEndpoint(AppConstants.projectEndpoint)
+      .setProject(AppConstants.projectKey)
       .setSelfSigned(status: true); //
-  runApp(const MyApp());
+  runApp(ProviderScope(overrides: [
+    Dependency().client.overrideWithValue(client),
+  ], child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(),
+  Widget build(BuildContext context, ref) {
+    final route = ref.watch(appRouterProvider);
+    return MaterialApp.router(
+      routerConfig: route,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Color(0xff2917CA),
+      ),
     );
   }
 }
