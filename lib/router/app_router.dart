@@ -23,13 +23,13 @@ GoRouter _router(Ref ref) => GoRouter(
               return const HomePage();
             },
             redirect: (context, state) async {
-              final user = await ref.read(authRepoProvider).value;
+              // final user = await ref.read(authRepoProvider).value;
 
-              if (user != null) {
-                return null;
-              } else {
-                return AppRoute.signIn;
-              }
+              // if (user != null) {
+              //   return null;
+              // } else {
+              //   return AppRoute.signIn;
+              // }
             }),
         GoRoute(
           path: AppRoute.signIn,

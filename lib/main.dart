@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 
-import 'package:appwrite/appwrite.dart';
+// import 'package:appwrite/appwrite.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:friendly_app/constants/app_constants.dart';
 import 'package:friendly_app/router/app_router.dart';
 
 import 'helpers/dependency.dart';
 
-Client client = Client();
+// Client client = Client();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  client
-      .setEndpoint(AppConstants.projectEndpoint)
-      .setProject(AppConstants.projectKey)
-      .setSelfSigned(status: true); //
-  runApp(ProviderScope(overrides: [
-    Dependency().client.overrideWithValue(client),
-  ], child: const MyApp()));
+  // client
+  //     .setEndpoint(AppConstants.projectEndpoint)
+  //     .setProject(AppConstants.projectKey)
+  //     .setSelfSigned(status: true); //
+  runApp(ProviderScope(overrides: [], child: const MyApp()));
 }
 
 class MyApp extends ConsumerWidget {

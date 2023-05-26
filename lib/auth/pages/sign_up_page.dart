@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:friendly_app/helpers/dependency.dart';
 import 'package:friendly_app/router/route_contants.dart';
 import 'package:go_router/go_router.dart';
 
@@ -41,7 +42,7 @@ class _SignUPPageState extends ConsumerState<SignUPPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(AuthController.provider);
+    final isLoading = ref.watch(Dependency().client);
     return Scaffold(
         body: Stack(
       children: [
@@ -176,19 +177,11 @@ class _SignUPPageState extends ConsumerState<SignUPPage> {
                         style: ElevatedButton.styleFrom(
                             fixedSize:
                                 Size(MediaQuery.of(context).size.width, 35)),
-                        child: isLoading
-                            ? const CircularProgressIndicator.adaptive(
-                                strokeWidth: 2.0,
-                              )
-                            : const Text("Sign Up"),
+                        child:  const Text("Sign Up"),
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
 
-                          ref.read(AuthController.provider.notifier).signUp(
-                              email: _emailController.text,
-                              password: _passwordController.text,
-                              name: _nameController.text,
-                              );
+                        
 
                           context.go(AppRoute.signIn);
                         },

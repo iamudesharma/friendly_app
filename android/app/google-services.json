@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "859221902934",
+    "project_id": "friendlyapp-eefc6",
+    "storage_bucket": "friendlyapp-eefc6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859221902934:android:77114af41e11b72c115df7",
+        "android_client_info": {
+          "package_name": "com.example.friendly_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjsurn3pvrS7PqUJQrlqL1mo0X2fJNh_c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

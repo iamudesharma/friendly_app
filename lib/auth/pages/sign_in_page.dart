@@ -37,7 +37,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = ref.watch(authRepoProvider);
+    // final auth = ref.watch(authRepoProvider);
     return Scaffold(
         body: Stack(
       children: [
@@ -154,16 +154,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                         style: ElevatedButton.styleFrom(
                             fixedSize:
                                 Size(MediaQuery.of(context).size.width, 35)),
-                        child: auth.isLoading
-                            ? CircularProgressIndicator.adaptive()
-                            : const Text("Sign In"),
+                        child: const Text("Sign In"),
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-
-                          await ref
-                              .read(authRepoProvider.notifier)
-                              .createUserByEmail(_emailController.text,
-                                  _passwordController.text);
                         },
                       ),
                       const SizedBox(
