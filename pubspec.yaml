@@ -46,6 +46,10 @@ dependencies:
   confetti: ^0.7.0
   flutter_animate: ^4.1.1+1
 
+  serverpod_flutter: ^1.1.0
+  friendly_client:
+    path: ../friendly_client
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

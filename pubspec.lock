@@ -193,6 +193,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.0"
+  connectivity_plus:
+    dependency: transitive
+    description:
+      name: connectivity_plus
+      sha256: b74247fad72c171381dbe700ca17da24deac637ab6d43c343b42867acb95c991
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.6"
+  connectivity_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: connectivity_plus_platform_interface
+      sha256: cf1d1c28f4416f8c654d7dc3cd638ec586076255d407cef3ddbdaf178272a71a
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.4"
   convert:
     dependency: transitive
     description:
@@ -265,6 +281,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.1"
+  dbus:
+    dependency: transitive
+    description:
+      name: dbus
+      sha256: "6f07cba3f7b3448d42d015bfd3d53fe12e5b36da2423f23838efc1d5fb31a263"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.8"
   device_info_plus:
     dependency: transitive
     description:
@@ -408,6 +432,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  friendly_client:
+    dependency: "direct main"
+    description:
+      path: "../friendly_client"
+      relative: true
+    source: path
+    version: "0.0.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -560,6 +591,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  nm:
+    dependency: transitive
+    description:
+      name: nm
+      sha256: "2c9aae4127bdc8993206464fcc063611e0e36e72018696cd9631023a31b24254"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   package_config:
     dependency: transitive
     description:
@@ -752,6 +791,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
+  serverpod_client:
+    dependency: transitive
+    description:
+      name: serverpod_client
+      sha256: "7f8d8be8953cc33bcb8ec5bc095792dd4973385f9ae133bf9bd1df0bca8ee6ad"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
+  serverpod_flutter:
+    dependency: "direct main"
+    description:
+      name: serverpod_flutter
+      sha256: "6c58f5463026df1c68dd19c17ec9b78e024d471399358e6011cbd2e509863600"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
+  serverpod_serialization:
+    dependency: transitive
+    description:
+      name: serverpod_serialization
+      sha256: "80f367e3e91b39562864c12f546431d1e34be2ee460eb9d3c57fd33b28539674"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   shelf:
     dependency: transitive
     description:
