@@ -23,9 +23,9 @@ class AuthRepo extends _$AuthRepo with RepositoryExceptionMixin {
     return user;
   }
 
-  FutureOr<User?> createUserByEmail(String email, String password) async {
+  FutureOr<Session?> createUserByEmail(String email, String password) async {
     state = AsyncValue.loading();
-    final user = await exceptionHandler<User?>(ref
+    final user = await exceptionHandler<Session?>(ref
         .read(Dependency().account)
         .createEmailSession(email: email, password: password));
 

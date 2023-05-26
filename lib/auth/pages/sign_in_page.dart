@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:friendly_app/auth/repo/auth_repo.dart';
 import 'package:friendly_app/router/route_contants.dart';
@@ -114,6 +115,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                     children: [
                       TextFieldTapRegion(
                         child: TextFormField(
+                          controller: _emailController,
                           enabled: true,
                           textInputAction: TextInputAction.go,
                           decoration: InputDecoration(
@@ -131,6 +133,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                       ),
                       TextFieldTapRegion(
                         child: TextFormField(
+                          controller: _passwordController,
                           obscureText: true,
                           enabled: true,
                           textInputAction: TextInputAction.go,
@@ -157,8 +160,10 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
 
-                          // await ref.read(authRepoProvider.notifier).createUser(
-                          //     _emailController.text, _passwordController.text);
+                          await ref
+                              .read(authRepoProvider.notifier)
+                              .createUserByEmail(_emailController.text,
+                                  _passwordController.text);
                         },
                       ),
                       const SizedBox(
@@ -259,7 +264,26 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                   .textTheme
                   .displaySmall
                   ?.copyWith(color: Colors.white, fontStyle: FontStyle.italic),
-            ),
+            )
+                .animate(adapter: ValueAdapter(0.5))
+                .shimmer(
+                  colors: [
+                    const Color(0xFFFFFF00),
+                    const Color(0xFF00FF00),
+                    const Color(0xFF00FFFF),
+                    const Color(0xFF0033FF),
+                    const Color(0xFFFF0000),
+                    const Color(0xFFFFFF00),
+                  ],
+                )
+                .animate(
+                    onPlay: (controller) => controller.repeat(reverse: true))
+                .saturate(delay: 0.5.seconds, duration: 2.seconds)
+                .then() // set baseline time to previous effect's end time
+                .tint(color: const Color(0xFF80DDFF))
+                .then()
+                .blurXY(end: 24)
+                .fadeOut(),
           ]),
         ),
       ],
