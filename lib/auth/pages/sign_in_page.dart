@@ -1,15 +1,11 @@
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:friendly_app/auth/repo/auth_repo.dart';
 import 'package:friendly_app/helpers/dependency.dart';
 import 'package:friendly_app/router/route_contants.dart';
 import 'package:go_router/go_router.dart';
-import 'package:serverpod_auth_client/module.dart';
-import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
-
-import 'package:friendly_app_client/friendly_app_client.dart';
 
 class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
@@ -265,35 +261,36 @@ class _SignInWidget extends ConsumerWidget {
                       const SizedBox(
                         height: 20,
                       ),
+
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              fixedSize: Size(150, 40),
-                            ),
-                            icon: Image.network(
-                              "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
-                              height: 30,
-                              width: 30,
-                            ),
-                            label: Text("Google"),
-                            onPressed: () {},
+                          Icon(
+                            Icons.phone,
+                            color: Theme.of(context).primaryColor,
                           ),
-                          OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                                fixedSize: Size(150, 40)),
-                            icon: Image.network(
-                              "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Facebook_colored_svg_copy-1024.png",
-                              // "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
-                              height: 30,
-                              width: 30,
-                            ),
-                            label: Text("Facebook"),
-                            onPressed: () {},
-                          ),
+                          PhoneVerificationButton(label: "Sign In With Phone"),
                         ],
-                      )
+                      ),
+
+                      // Row(
+                      //   // mainAxisAlignment: MainAxisAlignment.,
+                      //   // crossAxisAlignment: CrossAxisAlignment.stretch,
+                      //   children: [
+                      //     // OutlinedButton.icon(
+                      //     //   style: OutlinedButton.styleFrom(
+                      //     //       fixedSize: Size(150, 40)),
+                      //     //   icon: Image.network(
+                      //     //     "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Facebook_colored_svg_copy-1024.png",
+                      //     //     // "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
+                      //     //     height: 30,
+                      //     //     width: 30,
+                      //     //   ),
+                      //     //   label: Text("Facebook"),
+                      //     //   onPressed: () {},
+                      //     // ),
+                      //   ],
+                      // )
                     ],
                   ),
                 ),

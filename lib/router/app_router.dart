@@ -28,7 +28,7 @@ GoRouter _router(Ref ref) => GoRouter(
               // if (user != null) {
               //   return null;
               // } else {
-              //   return AppRoute.signIn;
+              return AppRoute.signIn;
               // }
             }),
         GoRoute(

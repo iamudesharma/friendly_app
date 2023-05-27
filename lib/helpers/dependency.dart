@@ -5,7 +5,6 @@ import 'package:friendly_app_client/friendly_app_client.dart';
 import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 
-late SessionManager sessionManager;
 final _clientProvider = Provider<Client>((ref) {
   return Client(
     'http://localhost:8080/',
@@ -13,10 +12,8 @@ final _clientProvider = Provider<Client>((ref) {
   )..connectivityMonitor = FlutterConnectivityMonitor();
 });
 
-final _sessionManagerProvider = Provider<SessionManager>((ref) {
-  return SessionManager(
-    caller: ref.read(_clientProvider).modules.auth,
-  );
+final _sessionManagerProvider = Provider<SessionManager>((ref){
+  return SessionManager(caller: ref.read(_clientProvider).modules.auth);
 });
 
 // final _storageProvider = Provider<Storage>((ref) {

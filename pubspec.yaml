@@ -50,6 +50,8 @@ dependencies:
     path: ../friendly_app_client
   serverpod_auth_shared_flutter: ^1.1.1
   firebase_core: ^2.13.0
+  serverpod_auth_firebase_flutter: ^1.1.1
+  firebase_ui_auth: ^1.4.1
 
 dev_dependencies:
   flutter_test:
