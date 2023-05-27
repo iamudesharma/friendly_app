@@ -1,9 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:friendly_app/helpers/dependency.dart';
+import 'package:friendly_app/helpers/error.dart';
+import 'package:friendly_app/home/home_page.dart';
 import 'package:friendly_app/router/route_contants.dart';
 import 'package:go_router/go_router.dart';
 
@@ -41,53 +44,34 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   Widget build(BuildContext context) {
     // final auth = ref.watch(authRepoProvider);
     return Scaffold(
-        body: AuthFlowBuilder<EmailAuthController>(
-      builder: (context, state, ctrl, child) {
-//             switch(state){
-// case state  AwaitingEmailAndPassword:
-
-//             return _SignInWidget(formKey: _formKey, emailController: _emailController, passwordController: _passwordController);
-
-//             }
-
-        if (state is AwaitingEmailAndPassword) {
-          return _SignInWidget(
-              ctrl: ctrl,
-              formKey: _formKey,
-              emailController: _emailController,
-              passwordController: _passwordController);
-        } else if (state is SigningIn) {
-          return const CircularProgressIndicator.adaptive();
-        } else if (state is AuthFailed) {
-          return ErrorText(exception: state.exception);
-        } else {
-          return Text('Unknown state $state');
-        }
-      },
-      child: EmailForm(),
-    ));
+      body: _SignInWidget(
+          formKey: _formKey,
+          emailController: _emailController,
+          passwordController: _passwordController),
+    );
   }
 }
 
-class _SignInWidget extends ConsumerWidget {
+class _SignInWidget extends ConsumerWidget with RepositoryExceptionMixin {
   const _SignInWidget({
     super.key,
     required GlobalKey<FormState> formKey,
     required TextEditingController emailController,
     required TextEditingController passwordController,
-    required EmailAuthController ctrl,
   })  : _formKey = formKey,
         _emailController = emailController,
-        _passwordController = passwordController,
-        _ctrl = ctrl;
+        _passwordController = passwordController;
+  // _ctrl = ctrl;
 
   final GlobalKey<FormState> _formKey;
   final TextEditingController _emailController;
   final TextEditingController _passwordController;
-  final EmailAuthController _ctrl;
+  // final EmailAuthController _ctrl;
 
   @override
   Widget build(BuildContext context, ref) {
+    bool isLoading = false;
+
     return Stack(
       children: [
         // Background color
@@ -199,45 +183,64 @@ class _SignInWidget extends ConsumerWidget {
                       const SizedBox(
                         height: 20,
                       ),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              fixedSize:
-                                  Size(MediaQuery.of(context).size.width, 35)),
-                          child: const Text("Sign In"),
-                          onPressed: () async {
-                            FocusScope.of(context).unfocus();
-                            _ctrl.setEmailAndPassword(_emailController.text,
-                                _passwordController.text);
+                      StatefulBuilder(builder: (context, setState) {
+                        return ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                fixedSize: Size(
+                                    MediaQuery.of(context).size.width, 35)),
+                            child: isLoading
+                                ? CircularProgressIndicator.adaptive()
+                                : const Text("Sign In"),
+                            onPressed: () async {
+                              final _ctx = GoRouter.of(context);
+                              FocusScope.of(context).unfocus();
 
-                            final users = await _ctrl.auth
-                                .signInWithEmailAndPassword(
-                                    email: _emailController.text,
-                                    password: _passwordController.text);
+                              setState(() {
+                                isLoading = true;
+                              });
+                              final users =
+                                  await exceptionHandler<UserCredential>(ref
+                                          .read(Dependency.firebaseAuth)
+                                          .signInWithEmailAndPassword(
+                                              email: _emailController.text,
+                                              password:
+                                                  _passwordController.text))
+                                      .catchError((e, st) {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              });
 
-                            var idToken = await users.user!.getIdToken();
+                              var idToken = await users.user!.getIdToken();
 
-                            var serverResponse = await ref
-                                .read(Dependency().client)
-                                .modules
-                                .auth
-                                .firebase
-                                .authenticate(idToken);
+                              var serverResponse = await exceptionHandler(ref
+                                  .read(Dependency.client)
+                                  .modules
+                                  .auth
+                                  .firebase
+                                  .authenticate(idToken));
 
-                            if (!serverResponse.success &&
-                                serverResponse.userInfo != null) {
-                              // Failed to sign in.
-                              // completer.complete(null);
-                              return;
-                            }
+                              if (!serverResponse.success &&
+                                  serverResponse.userInfo != null) {
+                                // Failed to sign in.
+                                // completer.complete(null);
+                                return;
+                              }
 
-                            ref
-                                .read(Dependency().sessionManager)
-                                .registerSignedInUser(
-                                  serverResponse.userInfo!,
-                                  serverResponse.keyId!,
-                                  serverResponse.key!,
-                                );
-                          }),
+                              await exceptionHandler(ref
+                                  .read(Dependency.sessionManager)
+                                  .registerSignedInUser(
+                                    serverResponse.userInfo!,
+                                    serverResponse.keyId!,
+                                    serverResponse.key!,
+                                  ));
+
+                              setState(() {
+                                isLoading = false;
+                              });
+                              _ctx.replace(AppRoute.home);
+                            });
+                      }),
                       const SizedBox(
                         height: 20,
                       ),
@@ -261,36 +264,16 @@ class _SignInWidget extends ConsumerWidget {
                       const SizedBox(
                         height: 20,
                       ),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.phone,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          PhoneVerificationButton(label: "Sign In With Phone"),
-                        ],
+                      OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                            fixedSize:
+                                Size(MediaQuery.of(context).size.width, 40)),
+                        icon: const Icon(Icons.phone),
+                        label: const Text("Phone"),
+                        onPressed: () {
+                          context.push("/phone");
+                        },
                       ),
-
-                      // Row(
-                      //   // mainAxisAlignment: MainAxisAlignment.,
-                      //   // crossAxisAlignment: CrossAxisAlignment.stretch,
-                      //   children: [
-                      //     // OutlinedButton.icon(
-                      //     //   style: OutlinedButton.styleFrom(
-                      //     //       fixedSize: Size(150, 40)),
-                      //     //   icon: Image.network(
-                      //     //     "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Facebook_colored_svg_copy-1024.png",
-                      //     //     // "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
-                      //     //     height: 30,
-                      //     //     width: 30,
-                      //     //   ),
-                      //     //   label: Text("Facebook"),
-                      //     //   onPressed: () {},
-                      //     // ),
-                      //   ],
-                      // )
                     ],
                   ),
                 ),
@@ -339,16 +322,16 @@ class _SignInWidget extends ConsumerWidget {
                   ?.copyWith(color: Colors.white, fontStyle: FontStyle.italic),
             )
                 .animate(adapter: ValueAdapter(0.5))
-                .shimmer(
-                  colors: [
-                    const Color(0xFFFFFF00),
-                    const Color(0xFF00FF00),
-                    const Color(0xFF00FFFF),
-                    const Color(0xFF0033FF),
-                    const Color(0xFFFF0000),
-                    const Color(0xFFFFFF00),
-                  ],
-                )
+                // .shimmer(
+                //   colors: [
+                //     const Color(0xFFFFFF00),
+                //     const Color(0xFF00FF00),
+                //     const Color(0xFF00FFFF),
+                //     const Color(0xFF0033FF),
+                //     const Color(0xFFFF0000),
+                //     const Color(0xFFFFFF00),
+                //   ],
+                // )
                 .animate(
                     onPlay: (controller) => controller.repeat(reverse: true))
                 .saturate(delay: 0.5.seconds, duration: 2.seconds)

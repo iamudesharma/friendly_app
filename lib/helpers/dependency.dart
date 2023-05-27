@@ -1,4 +1,5 @@
 // import 'package:appwrite/appwrite.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:friendly_app_client/friendly_app_client.dart';
 
@@ -15,6 +16,14 @@ final _clientProvider = Provider<Client>((ref) {
 final _sessionManagerProvider = Provider<SessionManager>((ref){
   return SessionManager(caller: ref.read(_clientProvider).modules.auth);
 });
+
+
+final _firebaseAuthProvider = Provider<FirebaseAuth>((ref){
+  return FirebaseAuth.instance;
+});
+// final _firestoreProvider = Provider<Firebase>((ref){
+//   return SessionManager(caller: ref.read(_clientProvider).modules.auth);
+// });
 
 // final _storageProvider = Provider<Storage>((ref) {
 //   return Storage(ref.watch(_clientProvider));
@@ -33,8 +42,9 @@ final _sessionManagerProvider = Provider<SessionManager>((ref){
 // });
 
 final class Dependency {
-  Provider<Client> get client => _clientProvider;
-  Provider<SessionManager> get sessionManager => _sessionManagerProvider;
+ static Provider<Client> get client => _clientProvider;
+ static Provider<SessionManager> get sessionManager => _sessionManagerProvider;
+static  Provider<FirebaseAuth> get firebaseAuth => _firebaseAuthProvider;
   // Provider<Functions> get functions => _functionsProvider;
   // Provider<Locale> get locale => _localeProvider;
   // Provider<Storage> get storage => _storageProvider;

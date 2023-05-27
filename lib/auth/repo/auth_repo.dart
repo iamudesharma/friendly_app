@@ -1,64 +1,29 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // import 'package:appwrite/appwrite.dart';
 // import 'package:appwrite/models.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import 'package:friendly_app/helpers/dependency.dart';
 import 'package:friendly_app/helpers/error.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-// part 'auth_repo.g.dart';
 
-// @Riverpod(keepAlive: true)
-// class AuthRepo extends _$AuthRepo with RepositoryExceptionMixin {
-//   @override
-//   FutureOr build() {
-//     // TODO: implement build
-//     throw UnimplementedError();
-//   }
-//   @override
-  // FutureOr<User> build() async {
-  //   final user = await getUser();
+final _authRepoProvider = Provider((ref) {
+  return AuthRepo(ref.read(Dependency.firebaseAuth), ref);
+});
 
-  //   return user;
-  // }
+class AuthRepo with RepositoryExceptionMixin {
+  final FirebaseAuth auth;
+  final Ref ref;
 
-  // FutureOr<User?> createUser(String email, String password, String name) async {
-  //   final user = await exceptionHandler<User>(
-  //     ref.read(Dependency().account).create(
-  //         userId: ID.unique(), email: email, password: password, name: name),
-  //   );
+  AuthRepo(
+    this.auth,
+    this.ref,
+  );
 
-  //   return user;
-  // }
+  static Provider<AuthRepo> get provider => _authRepoProvider;
 
-  // FutureOr<Session?> createUserByEmail(String email, String password) async {
-  //   state = AsyncValue.loading();
-  //   final user = await exceptionHandler<Session?>(ref
-  //       .read(Dependency().account)
-  //       .createEmailSession(email: email, password: password));
-
-  //   return user;
-  // }
-
-  // FutureOr<User?> createPhoneUser(String phone) async {
-  //   return exceptionHandler<User?>(ref
-  //       .read(Dependency().account)
-  //       .createPhoneSession(userId: ID.unique(), phone: phone));
-  // }
-
-  // FutureOr<User?> phoneVerify(String secret) async {
-  //   return exceptionHandler<User?>(ref
-  //       .read(Dependency().account)
-  //       .updatePhoneSession(userId: ID.unique(), secret: secret));
-  // }
-
-  // FutureOr<User?> getUser() async {
-  //   try {
-  //     final user = ref.read(Dependency().account).get();
-
-  //     return user;
-  //   } on AppwriteException catch (_) {
-  //     return null;
-  //   } on Exception catch (_) {
-  //     return null;
-  //   }
-  //   // return ;
-  // }
-// }
+  bool checkUserExist() {
+    return ref.read(Dependency.sessionManager).isSignedIn;
+  }
+}

@@ -42,7 +42,7 @@ class _SignUPPageState extends ConsumerState<SignUPPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(Dependency().client);
+    final isLoading = ref.watch(Dependency.client);
     return Scaffold(
         body: Stack(
       children: [
@@ -177,11 +177,9 @@ class _SignUPPageState extends ConsumerState<SignUPPage> {
                         style: ElevatedButton.styleFrom(
                             fixedSize:
                                 Size(MediaQuery.of(context).size.width, 35)),
-                        child:  const Text("Sign Up"),
+                        child: const Text("Sign Up"),
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-
-                        
 
                           context.go(AppRoute.signIn);
                         },

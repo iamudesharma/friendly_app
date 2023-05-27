@@ -40,9 +40,9 @@ void main() async {
   //     .setEndpoint(AppConstants.projectEndpoint)
   //     .setProject(AppConstants.projectKey)
   //     .setSelfSigned(status: true); //
-  runApp(ProviderScope(overrides: [
-    Dependency().sessionManager.overrideWithValue(_sessionManager)
-  ], child: const MyApp()));
+  runApp(ProviderScope(
+      overrides: [Dependency.sessionManager.overrideWithValue(_sessionManager)],
+      child: const MyApp()));
 }
 
 class MyApp extends ConsumerWidget {
