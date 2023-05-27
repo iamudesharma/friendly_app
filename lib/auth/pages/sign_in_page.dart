@@ -1,9 +1,15 @@
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:friendly_app/auth/repo/auth_repo.dart';
+import 'package:friendly_app/helpers/dependency.dart';
 import 'package:friendly_app/router/route_contants.dart';
 import 'package:go_router/go_router.dart';
+import 'package:serverpod_auth_client/module.dart';
+import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
+
+import 'package:friendly_app_client/friendly_app_client.dart';
 
 class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
@@ -39,7 +45,54 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   Widget build(BuildContext context) {
     // final auth = ref.watch(authRepoProvider);
     return Scaffold(
-        body: Stack(
+        body: AuthFlowBuilder<EmailAuthController>(
+      builder: (context, state, ctrl, child) {
+//             switch(state){
+// case state  AwaitingEmailAndPassword:
+
+//             return _SignInWidget(formKey: _formKey, emailController: _emailController, passwordController: _passwordController);
+
+//             }
+
+        if (state is AwaitingEmailAndPassword) {
+          return _SignInWidget(
+              ctrl: ctrl,
+              formKey: _formKey,
+              emailController: _emailController,
+              passwordController: _passwordController);
+        } else if (state is SigningIn) {
+          return const CircularProgressIndicator.adaptive();
+        } else if (state is AuthFailed) {
+          return ErrorText(exception: state.exception);
+        } else {
+          return Text('Unknown state $state');
+        }
+      },
+      child: EmailForm(),
+    ));
+  }
+}
+
+class _SignInWidget extends ConsumerWidget {
+  const _SignInWidget({
+    super.key,
+    required GlobalKey<FormState> formKey,
+    required TextEditingController emailController,
+    required TextEditingController passwordController,
+    required EmailAuthController ctrl,
+  })  : _formKey = formKey,
+        _emailController = emailController,
+        _passwordController = passwordController,
+        _ctrl = ctrl;
+
+  final GlobalKey<FormState> _formKey;
+  final TextEditingController _emailController;
+  final TextEditingController _passwordController;
+  final EmailAuthController _ctrl;
+
+  @override
+  Widget build(BuildContext context, ref) {
+    return Stack(
       children: [
         // Background color
         Positioned.fill(
@@ -151,14 +204,44 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                         height: 20,
                       ),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            fixedSize:
-                                Size(MediaQuery.of(context).size.width, 35)),
-                        child: const Text("Sign In"),
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus();
-                        },
-                      ),
+                          style: ElevatedButton.styleFrom(
+                              fixedSize:
+                                  Size(MediaQuery.of(context).size.width, 35)),
+                          child: const Text("Sign In"),
+                          onPressed: () async {
+                            FocusScope.of(context).unfocus();
+                            _ctrl.setEmailAndPassword(_emailController.text,
+                                _passwordController.text);
+
+                            final users = await _ctrl.auth
+                                .signInWithEmailAndPassword(
+                                    email: _emailController.text,
+                                    password: _passwordController.text);
+
+                            var idToken = await users.user!.getIdToken();
+
+                            var serverResponse = await ref
+                                .read(Dependency().client)
+                                .modules
+                                .auth
+                                .firebase
+                                .authenticate(idToken);
+
+                            if (!serverResponse.success &&
+                                serverResponse.userInfo != null) {
+                              // Failed to sign in.
+                              // completer.complete(null);
+                              return;
+                            }
+
+                            ref
+                                .read(Dependency().sessionManager)
+                                .registerSignedInUser(
+                                  serverResponse.userInfo!,
+                                  serverResponse.keyId!,
+                                  serverResponse.key!,
+                                );
+                          }),
                       const SizedBox(
                         height: 20,
                       ),
@@ -280,6 +363,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
           ]),
         ),
       ],
-    ));
+    );
   }
 }
