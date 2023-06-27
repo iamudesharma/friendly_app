@@ -4,8 +4,6 @@ import 'package:friendly_app/helpers/dependency.dart';
 import 'package:friendly_app/router/route_contants.dart';
 import 'package:go_router/go_router.dart';
 
-import '../controller/auth_controller.dart';
-import '../repo/auth_repo.dart';
 
 class SignUPPage extends ConsumerStatefulWidget {
   const SignUPPage({super.key});
