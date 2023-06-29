@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:friendly_app/router/app_router.dart';
 import 'package:friendly_app_client/friendly_app_client.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:serverpod_auth_shared_flutter/serverpod_auth_shared_flutter.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 
@@ -54,8 +55,13 @@ class MyApp extends ConsumerWidget {
     return MaterialApp.router(
       routerConfig: route,
       theme: ThemeData(
+        textTheme: GoogleFonts.poppinsTextTheme(),
         useMaterial3: true,
-        colorSchemeSeed: Color(0xff2917CA),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        colorSchemeSeed: const Color(0xff673AB7),
+        primaryColorDark: const Color(0xff512DA8),
+        primaryColorLight: const Color(0xffD1C4E9),
+        // primaryColor: Color(0xff673AB7),
       ),
     );
   }
