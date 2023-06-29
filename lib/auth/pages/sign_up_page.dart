@@ -134,7 +134,7 @@ class _SignUPPageState extends ConsumerState<SignUPPage>
                       //     ),
                       //   ),
                       // ),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       TextFieldTapRegion(

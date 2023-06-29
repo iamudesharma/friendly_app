@@ -27,6 +27,8 @@
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
+	<key>NSLocationUsageDescription</key>
+<string>This app needs access to location.</string>
 	<string>NSApplication</string>
 </dict>
 </plist>

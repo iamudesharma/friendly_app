@@ -56,6 +56,7 @@ dependencies:
   cloud_firestore: ^4.8.2
   responsive_builder: ^0.7.0
   google_fonts: ^4.0.4
+  geolocator: ^9.0.2
 
 dev_dependencies:
   flutter_test:
