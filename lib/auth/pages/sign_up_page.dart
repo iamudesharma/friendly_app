@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:friendly_app/helpers/dependency.dart';
 import 'package:friendly_app/router/route_contants.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:friendly_app/helpers/error.dart';
+import 'package:serverpod_auth_firebase_flutter/serverpod_auth_firebase_flutter.dart';
 
 class SignUPPage extends ConsumerStatefulWidget {
   const SignUPPage({super.key});
@@ -12,7 +14,8 @@ class SignUPPage extends ConsumerStatefulWidget {
   ConsumerState<SignUPPage> createState() => _SignUPPageState();
 }
 
-class _SignUPPageState extends ConsumerState<SignUPPage> {
+class _SignUPPageState extends ConsumerState<SignUPPage>
+    with RepositoryExceptionMixin {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
@@ -38,9 +41,9 @@ class _SignUPPageState extends ConsumerState<SignUPPage> {
     super.dispose();
   }
 
+  var isLoading = false;
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(Dependency.client);
     return Scaffold(
         body: Stack(
       children: [
@@ -116,21 +119,21 @@ class _SignUPPageState extends ConsumerState<SignUPPage> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      TextFieldTapRegion(
-                        child: TextFormField(
-                          controller: _nameController,
-                          enabled: true,
-                          textInputAction: TextInputAction.go,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            labelText: "Name",
-                            hintText: "Enter your name",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // TextFieldTapRegion(
+                      //   child: TextFormField(
+                      //     controller: _nameController,
+                      //     enabled: true,
+                      //     textInputAction: TextInputAction.go,
+                      //     decoration: InputDecoration(
+                      //       isDense: true,
+                      //       labelText: "Name",
+                      //       hintText: "Enter your name",
+                      //       border: OutlineInputBorder(
+                      //         borderRadius: BorderRadius.circular(10),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       SizedBox(
                         height: 10,
                       ),
@@ -172,16 +175,59 @@ class _SignUPPageState extends ConsumerState<SignUPPage> {
                         height: 20,
                       ),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            fixedSize:
-                                Size(MediaQuery.of(context).size.width, 35)),
-                        child: const Text("Sign Up"),
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus();
+                          style: ElevatedButton.styleFrom(
+                              fixedSize:
+                                  Size(MediaQuery.of(context).size.width, 35)),
+                          child: const Text("Sign Up"),
+                          onPressed: () async {
+                            FocusScope.of(context).unfocus();
+                            final _ctx = GoRouter.of(context);
+                            FocusScope.of(context).unfocus();
 
-                          context.go(AppRoute.signIn);
-                        },
-                      ),
+                            setState(() {
+                              isLoading = true;
+                            });
+                            final users =
+                                await exceptionHandler<UserCredential>(ref
+                                        .read(Dependency.firebaseAuth)
+                                        .createUserWithEmailAndPassword(
+                                            email: _emailController.text,
+                                            password: _passwordController.text))
+                                    .catchError((e, st) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            });
+
+                            var idToken = await users.user!.getIdToken();
+
+                            var serverResponse = await exceptionHandler(ref
+                                .read(Dependency.client)
+                                .modules
+                                .auth
+                                .firebase
+                                .authenticate(idToken));
+
+                            if (!serverResponse.success &&
+                                serverResponse.userInfo != null) {
+                              // Failed to sign in.
+                              // completer.complete(null);
+                              return;
+                            }
+
+                            await exceptionHandler(ref
+                                .read(Dependency.sessionManager)
+                                .registerSignedInUser(
+                                  serverResponse.userInfo!,
+                                  serverResponse.keyId!,
+                                  serverResponse.key!,
+                                ));
+
+                            setState(() {
+                              isLoading = false;
+                            });
+                            _ctx.replace(AppRoute.home);
+                          }),
                       const SizedBox(
                         height: 20,
                       ),
