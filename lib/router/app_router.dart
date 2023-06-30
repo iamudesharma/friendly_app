@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../helpers/dependency.dart';
+import '../home/user_setup_page.dart';
 
 part 'app_router.g.dart';
 
@@ -29,7 +30,11 @@ GoRouter _router(Ref ref) => GoRouter(
               final user = ref.read(AuthRepo.provider).checkUserExist();
 
               if (user) {
-                return null;
+                if (await ref.read(AuthRepo.provider).checkUserExistData()) {
+                  return null;
+                } else {
+                  return AppRoute.userSetup;
+                }
               }
               return AppRoute.signIn;
             }),
@@ -43,6 +48,12 @@ GoRouter _router(Ref ref) => GoRouter(
           path: AppRoute.signUp,
           builder: (BuildContext context, GoRouterState state) {
             return const SignUPPage();
+          },
+        ),
+        GoRoute(
+          path: AppRoute.userSetup,
+          builder: (context, state) {
+            return const UserSetupPage();
           },
         ),
         GoRoute(

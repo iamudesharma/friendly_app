@@ -26,4 +26,13 @@ class AuthRepo with RepositoryExceptionMixin {
   bool checkUserExist() {
     return ref.read(Dependency.sessionManager).isSignedIn;
   }
+
+  Future<bool> checkUserExistData() async {
+    final user = await ref.read(Dependency.client).example.currentUser();
+
+    if (user != null) {
+      return true;
+    }
+    return false;
+  }
 }
