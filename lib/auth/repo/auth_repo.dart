@@ -28,11 +28,16 @@ class AuthRepo with RepositoryExceptionMixin {
   }
 
   Future<bool> checkUserExistData() async {
-    final user = await ref.read(Dependency.client).example.currentUser();
+    try {
+      final user = await ref.read(Dependency.client).users.currentUser();
 
-    if (user != null) {
-      return true;
+      print(user?.toJson());
+      if (user != null) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
     }
-    return false;
   }
 }

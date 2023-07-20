@@ -115,165 +115,172 @@ class _SignUPPageState extends ConsumerState<SignUPPage>
               ),
               Padding(
                 padding: const EdgeInsets.all(15.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      // TextFieldTapRegion(
-                      //   child: TextFormField(
-                      //     controller: _nameController,
-                      //     enabled: true,
-                      //     textInputAction: TextInputAction.go,
-                      //     decoration: InputDecoration(
-                      //       isDense: true,
-                      //       labelText: "Name",
-                      //       hintText: "Enter your name",
-                      //       border: OutlineInputBorder(
-                      //         borderRadius: BorderRadius.circular(10),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      TextFieldTapRegion(
-                        child: TextFormField(
-                          controller: _emailController,
-                          enabled: true,
-                          textInputAction: TextInputAction.go,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            labelText: "Email",
-                            hintText: "Enter your email",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.height * 0.5,
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        // TextFieldTapRegion(
+                        //   child: TextFormField(
+                        //     controller: _nameController,
+                        //     enabled: true,
+                        //     textInputAction: TextInputAction.go,
+                        //     decoration: InputDecoration(
+                        //       isDense: true,
+                        //       labelText: "Name",
+                        //       hintText: "Enter your name",
+                        //       border: OutlineInputBorder(
+                        //         borderRadius: BorderRadius.circular(10),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        TextFieldTapRegion(
+                          child: TextFormField(
+                            controller: _emailController,
+                            enabled: true,
+                            textInputAction: TextInputAction.go,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              labelText: "Email",
+                              hintText: "Enter your email",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      TextFieldTapRegion(
-                        child: TextFormField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          enabled: true,
-                          textInputAction: TextInputAction.go,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            labelText: "Password",
-                            hintText: "Enter your password",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        TextFieldTapRegion(
+                          child: TextFormField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            enabled: true,
+                            textInputAction: TextInputAction.go,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              labelText: "Password",
+                              hintText: "Enter your password",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              fixedSize:
-                                  Size(MediaQuery.of(context).size.width, 35)),
-                          child: const Text("Sign Up"),
-                          onPressed: () async {
-                            FocusScope.of(context).unfocus();
-                            final _ctx = GoRouter.of(context);
-                            FocusScope.of(context).unfocus();
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                fixedSize: Size(
+                                    MediaQuery.of(context).size.width, 35)),
+                            child: const Text("Sign Up"),
+                            onPressed: () async {
+                              FocusScope.of(context).unfocus();
+                              final _ctx = GoRouter.of(context);
+                              FocusScope.of(context).unfocus();
 
-                            setState(() {
-                              isLoading = true;
-                            });
-                            final users =
-                                await exceptionHandler<UserCredential>(ref
-                                        .read(Dependency.firebaseAuth)
-                                        .createUserWithEmailAndPassword(
-                                            email: _emailController.text,
-                                            password: _passwordController.text))
-                                    .catchError((e, st) {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              final users =
+                                  await exceptionHandler<UserCredential>(ref
+                                          .read(Dependency.firebaseAuth)
+                                          .createUserWithEmailAndPassword(
+                                              email: _emailController.text,
+                                              password:
+                                                  _passwordController.text))
+                                      .catchError((e, st) {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              });
+
+                              var idToken = await users.user!.getIdToken();
+
+                              var serverResponse = await exceptionHandler(ref
+                                  .read(Dependency.client)
+                                  .modules
+                                  .auth
+                                  .firebase
+                                  .authenticate(idToken));
+
+                              if (!serverResponse.success &&
+                                  serverResponse.userInfo != null) {
+                                // Failed to sign in.
+                                // completer.complete(null);
+                                return;
+                              }
+
+                              await exceptionHandler(ref
+                                  .read(Dependency.sessionManager)
+                                  .registerSignedInUser(
+                                    serverResponse.userInfo!,
+                                    serverResponse.keyId!,
+                                    serverResponse.key!,
+                                  ));
+
                               setState(() {
                                 isLoading = false;
                               });
-                            });
-
-                            var idToken = await users.user!.getIdToken();
-
-                            var serverResponse = await exceptionHandler(ref
-                                .read(Dependency.client)
-                                .modules
-                                .auth
-                                .firebase
-                                .authenticate(idToken));
-
-                            if (!serverResponse.success &&
-                                serverResponse.userInfo != null) {
-                              // Failed to sign in.
-                              // completer.complete(null);
-                              return;
-                            }
-
-                            await exceptionHandler(ref
-                                .read(Dependency.sessionManager)
-                                .registerSignedInUser(
-                                  serverResponse.userInfo!,
-                                  serverResponse.keyId!,
-                                  serverResponse.key!,
-                                ));
-
-                            setState(() {
-                              isLoading = false;
-                            });
-                            _ctx.replace(AppRoute.home);
-                          }),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "OR",
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey,
-                              letterSpacing: 1.3,
+                              _ctx.replace(AppRoute.home);
+                            }),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "OR",
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.grey,
+                                    letterSpacing: 1.3,
+                                  ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                fixedSize: const Size(150, 40),
+                              ),
+                              icon: Image.network(
+                                "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
+                                height: 30,
+                                width: 30,
+                              ),
+                              label: const Text("Google"),
+                              onPressed: () {},
                             ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              fixedSize: const Size(150, 40),
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                  fixedSize: const Size(150, 40)),
+                              icon: Image.network(
+                                "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Facebook_colored_svg_copy-1024.png",
+                                // "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
+                                height: 30,
+                                width: 30,
+                              ),
+                              label: const Text("Facebook"),
+                              onPressed: () {},
                             ),
-                            icon: Image.network(
-                              "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
-                              height: 30,
-                              width: 30,
-                            ),
-                            label: const Text("Google"),
-                            onPressed: () {},
-                          ),
-                          OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                                fixedSize: const Size(150, 40)),
-                            icon: Image.network(
-                              "https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Facebook_colored_svg_copy-1024.png",
-                              // "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png",
-                              height: 30,
-                              width: 30,
-                            ),
-                            label: const Text("Facebook"),
-                            onPressed: () {},
-                          ),
-                        ],
-                      )
-                    ],
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               )

@@ -22,7 +22,7 @@ GoRouter AppRouter(Ref ref) {
 GoRouter _router(Ref ref) => GoRouter(
       routes: <RouteBase>[
         GoRoute(
-            path: AppRoute.home,
+            path: '/',
             builder: (BuildContext context, GoRouterState state) {
               return const HomePage();
             },
@@ -31,7 +31,7 @@ GoRouter _router(Ref ref) => GoRouter(
 
               if (user) {
                 if (await ref.read(AuthRepo.provider).checkUserExistData()) {
-                  return null;
+                return null;
                 } else {
                   return AppRoute.userSetup;
                 }
